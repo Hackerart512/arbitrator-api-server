@@ -6,19 +6,11 @@ const permissions = [
 
     { name: 'View Users', key: 'view_users', description: 'View users list' },
     { name: 'Manage Users', key: 'manage_users', description: 'Manage users list' },
+    { name: 'View Arbitrator', key: 'view_arbitrator', description: 'View arbitrator list' },
+    { name: 'Manage Arbitrator', key: 'manage_arbitrator', description: 'Manage arbitrator list' },
 
 
-
-
-
-
-
-    // User & Auth
-    { name: 'View Users', key: 'view_users', description: 'View users list' },
-    { name: 'Create User', key: 'create_user', description: 'Create new user' },
-    { name: 'Update User', key: 'update_user', description: 'Update user details' },
-    { name: 'Delete User', key: 'delete_user', description: 'Delete user account' },
-
+ 
     // Role & Permission
     { name: 'View Roles', key: 'view_roles', description: 'View roles' },
     { name: 'Manage Roles', key: 'manage_roles', description: 'Create, update or delete roles' },

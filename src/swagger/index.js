@@ -1,6 +1,7 @@
 import userSwagger from '../modules/user/user.swagger.js';
 import permissionSwagger from '../modules/permission/permission.swagger.js';
 import roleSwagger from '../modules/role/role.swagger.js';
+import arbitratorSwagger from '../modules/arbitrator/arbitrator.swagger.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -26,6 +27,7 @@ export default {
     ...userSwagger.paths,
     ...permissionSwagger.paths,
     ...roleSwagger.paths,
+    ...arbitratorSwagger.paths,
   },
   components: {
     securitySchemes: {
@@ -40,6 +42,7 @@ export default {
       ...userSwagger.components?.schemas,
       ...permissionSwagger.components?.schemas,
       ...roleSwagger.components?.schemas,
+      ...arbitratorSwagger.components?.schemas,
     },
   },
 };
