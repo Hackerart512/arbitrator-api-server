@@ -1,18 +1,28 @@
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+    let token = req.headers.authorization;
 
-    if (!authHeader)
-        return res.status(401).json({ success: false, message: 'Token missing' });
-
-    const token = authHeader.split(' ')[1];
-    if (!token)
-        return res.status(401).json({ success: false, message: 'Invalid token format' });
+    if (!token) {
+        return res.status(401).json({
+            success: false,
+            message: 'Token missing'
+        });
+    }
+ 
+    if (token.startsWith('Bearer ')) {
+        token = token.split(' ')[1];
+    }
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded; // id, role, is_super_admin
+ 
+        req.user = {
+            id: decoded.userId,    
+            role: decoded.role,
+            permissions: decoded.permissions || []
+        };
+
         next();
     } catch (err) {
         return res.status(401).json({

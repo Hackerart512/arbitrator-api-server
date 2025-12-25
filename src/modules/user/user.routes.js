@@ -15,13 +15,13 @@ router.post('/login', UserController.login);
 /* --------------------------
   Protected Routes 
 ----------------------------*/
-router.use(authMiddleware); 
+// router.use(authMiddleware); 
 
 // Admin-only CRUD operations
-router.get('/', checkPermission('view_users'), UserController.getUsers);
-router.get('/:id', checkPermission('view_users'), UserController.getUserById);
-router.post('/', checkPermission('manage_users'), UserController.createUser);
-router.put('/:id', checkPermission('manage_users'), UserController.updateUser);
-router.delete('/:id', checkPermission('manage_users'), UserController.deleteUser);
+router.get('/',authMiddleware, checkPermission('view_users'), UserController.getUsers);
+router.get('/:id',authMiddleware, checkPermission('view_users'), UserController.getUserById);
+router.post('/',authMiddleware, checkPermission('manage_users'), UserController.createUser);
+router.put('/:id',authMiddleware, checkPermission('manage_users'), UserController.updateUser);
+router.delete('/:id',authMiddleware, checkPermission('manage_users'), UserController.deleteUser);
 
 export default router;

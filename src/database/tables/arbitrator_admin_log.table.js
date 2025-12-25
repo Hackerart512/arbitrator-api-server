@@ -5,8 +5,10 @@ const createArbitratorAdminLogTable = async () => {
         CREATE TABLE IF NOT EXISTS arbitrator_admin_logs (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-            user_id  INTEGER,
-            admin_id INTEGER,
+            user_id UUID UNIQUE NOT NULL
+            REFERENCES users(id) ON DELETE CASCADE,
+            admin_id UUID UNIQUE NOT NULL
+            REFERENCES users(id) ON DELETE CASCADE,
             action VARCHAR(50),
             notes TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

@@ -11,75 +11,89 @@ const ArbitratorModel = {
     registerArbitrator: async (datas) => {
         const client = await pool.connect();
 
+        try {
+            const { name, email, role_type } = datas;
 
-        const { name, email, role_type } = datas
+            if (!role_type) throw new Error('role_type is required');
 
-        if (!role_type) throw new Error('role_type is required');
+            await client.query('BEGIN');
 
-        await client.query('BEGIN');
-
-        const roleRes = await client.query(
-            'SELECT id FROM roles WHERE role_type = $1',
-            [role_type]
-        );
-
-        if (!roleRes.rows.length) throw new Error('Invalid role_type');
-
-        const roleId = roleRes.rows[0].id;
-
-        let { rows } = await client.query(
-            'SELECT id, email_verified FROM users WHERE email = $1',
-            [email]
-        );
-
-        let userId;
-        if (rows.length) {
-            userId = rows[0].id;
-
-            if (rows[0].email_verified) {
-                throw new Error('User already verified');
-            }
-        } else {
-            const insertUser = await client.query(
-                `INSERT INTO users 
-                        (name, email, role_id)
-                        VALUES ($1,$2,$3)
-                        RETURNING id,email`,
-                [name, email, roleId]
+          
+            const roleRes = await client.query(
+                'SELECT id FROM roles WHERE name = $1',
+                [role_type]
             );
-            userId = insertUser.rows[0].id;
+
+            if (!roleRes.rows.length) {
+                throw new Error('Invalid role_type');
+            }
+
+            const roleId = roleRes.rows[0].id;
+
+            const userRes = await client.query(
+                'SELECT id, is_verified FROM users WHERE email = $1',
+                [email]
+            );
+
+            let userId;
+
+            if (userRes.rows.length) {
+                userId = userRes.rows[0].id;
+
+
+                if (userRes.rows[0].is_verified) {
+                    throw new Error('User already verified');
+                }
+            } else {
+
+                const insertUser = await client.query(
+                    `INSERT INTO users (name, email, role_id)
+                 VALUES ($1, $2, $3)
+                 RETURNING id`,
+                    [name, email, roleId]
+                );
+
+                userId = insertUser.rows[0].id;
+            }
+
+
+            const code = generateCode();
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+
+            await client.query(
+                `UPDATE users
+             SET verification_code = $1,
+                 verification_expires_at = $2,
+                 updated_at = NOW()
+             WHERE id = $3`,
+                [code, expiresAt, userId]
+            );
+
+
+            await client.query(
+                `INSERT INTO system_logs
+             (user_id, entity_type, entity_id, action_type, notes)
+             VALUES ($1, 'ARBITRATOR', $1, 'REGISTRATION_INITIATED', $2)`,
+                [
+                    userId,
+                    `Verification code generated for role ${role_type.toUpperCase()}`
+                ]
+            );
+
+            await client.query('COMMIT');
+
+            return {
+                userId,
+                verification_code: code,
+                expiresAt
+            };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
         }
-
-        const code = generateCode();
-        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
-
-        await client.query(
-            `
-                UPDATE users
-                SET verification_code = $1,
-                    verification_expires_at = $2,
-                    updated_at = NOW()
-                WHERE id = $3
-            `,
-            [code, expiresAt, userId]
-        );
-
-        await client.query(
-            `
-                INSERT INTO arbitrator_admin_logs
-                (user_id, action, notes)
-                VALUES ($1,'REGISTRATION_INITIATED','Verification code generated for role ${role_type.toUpperCase()}')
-                `,
-            [userId]
-        );
-
-        await client.query('COMMIT');
-
-        return {
-            userId,
-            verification_code: code,
-            expiresAt
-        };
     },
 
     verifyEmailAndSetPassword: async (datas) => {
@@ -94,7 +108,7 @@ const ArbitratorModel = {
 
         await client.query('BEGIN');
 
-        // 1️⃣ Get user with matching verification code
+
         const { rows } = await client.query(
             `SELECT * FROM users WHERE email = $1 AND verification_code = $2`,
             [email, code]
@@ -106,20 +120,20 @@ const ArbitratorModel = {
 
         const user = rows[0];
 
-        // 2️⃣ Check if verification code is expired
+
         if (!user.verification_expires_at || new Date(user.verification_expires_at) < new Date()) {
             throw new Error('Verification code expired');
         }
 
-        // 3️⃣ Hash password
+
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 4️⃣ Update user record
+
         await client.query(
             `
       UPDATE users
       SET password = $1,
-          email_verified = true,
+          is_verified = true,
           verification_code = NULL,
           verification_expires_at = NULL,
           updated_at = NOW()
@@ -128,14 +142,15 @@ const ArbitratorModel = {
             [hashedPassword, user.id]
         );
 
-        // 5️⃣ Log action
+
         await client.query(
-            `
-      INSERT INTO arbitrator_admin_logs
-      (user_id, action, notes)
-      VALUES ($1,'EMAIL_VERIFIED','User verified email and set password')
-      `,
-            [user.id]
+            `INSERT INTO system_logs
+             (user_id, entity_type, entity_id, action_type, notes)
+             VALUES ($1, 'ARBITRATOR', $1, 'EMAIL_VERIFIED', $2)`,
+            [
+                user.id,
+                `Verification code  verified.`
+            ]
         );
 
         await client.query('COMMIT');
@@ -172,6 +187,7 @@ const ArbitratorModel = {
             throw new Error('Arbitrator profile already exists');
         }
 
+        console.log(userId);
         const arbRes = await client.query(
             `
       INSERT INTO arbitrators (
@@ -244,13 +260,16 @@ const ArbitratorModel = {
             [userId]
         );
 
+
+
         await client.query(
-            `
-      INSERT INTO arbitrator_admin_logs
-      (user_id, action, notes)
-      VALUES ($1,'SUBMITTED','Profile, bank & KYC submitted');
-      `,
-            [userId]
+            `INSERT INTO system_logs
+             (user_id, entity_type, entity_id, action_type, notes)
+             VALUES ($1, 'ARBITRATOR_ONBOARDING', $1, 'EMAIL_VERIFIED', $2)`,
+            [
+                userId,
+                `Profile, bank & KYC submitted`
+            ]
         );
 
         await client.query('COMMIT');
@@ -277,7 +296,7 @@ const ArbitratorModel = {
     },
 
     /* ---------------- APPROVE (ADMIN) ---------------- */
-    approve: async (id, adminId) => {
+    approve: async (userId, adminId) => {
         const { rows } = await pool.query(
             `
       UPDATE arbitrators
@@ -286,10 +305,10 @@ const ArbitratorModel = {
           approved_at = NOW(),
           verified_at = NOW(),
           updated_at = NOW()
-      WHERE id = $2
+      WHERE user_id = $2
       RETURNING *;
       `,
-            [adminId, id]
+            [adminId, userId]
         );
 
         return rows[0];
@@ -303,7 +322,7 @@ const ArbitratorModel = {
       SET status = 'rejected',
           rejection_reason = $1,
           updated_at = NOW()
-      WHERE id = $2
+      WHERE user_id = $2
       RETURNING *;
       `,
             [reason, id]

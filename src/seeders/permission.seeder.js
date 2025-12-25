@@ -8,6 +8,7 @@ const permissions = [
     { name: 'Manage Users', key: 'manage_users', description: 'Manage users list' },
     { name: 'View Arbitrator', key: 'view_arbitrator', description: 'View arbitrator list' },
     { name: 'Manage Arbitrator', key: 'manage_arbitrator', description: 'Manage arbitrator list' },
+    { name: 'Create Case', key: 'create_case', description: 'create_case' },
 
 
  
@@ -16,8 +17,7 @@ const permissions = [
     { name: 'Manage Roles', key: 'manage_roles', description: 'Create, update or delete roles' },
     { name: 'Assign Permissions', key: 'assign_permissions', description: 'Assign permissions to roles' },
 
-    // Arbitrator
-    { name: 'Approve Arbitrator', key: 'approve_arbitrator', description: 'Approve or reject arbitrator KYC' },
+     
 
     // Case
     { name: 'Create Case', key: 'create_case', description: 'File arbitration case' },

@@ -10,6 +10,8 @@ import errorHandler from './common/middlewares/error.middleware.js';
 import userRoutes from './modules/user/user.routes.js';
 import roleRoutes from './modules/role/role.routes.js';
 import permissionRoutes from './modules/permission/permission.routes.js';
+import arbitratorsRoutes from './modules/arbitrator/arbitrator.routes.js';
+import caseRoutes from './modules/case/case.routes.js';
  
 import dotenv from 'dotenv';
 dotenv.config();
@@ -28,6 +30,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api/users', userRoutes);
 app.use('/api/permissions', permissionRoutes);
 app.use('/api/roles', roleRoutes);
+app.use('/api/arbitrators', arbitratorsRoutes);
+app.use('/api/cases', caseRoutes);
  
 
 app.get('/test', (req, res) => res.send('OK'));

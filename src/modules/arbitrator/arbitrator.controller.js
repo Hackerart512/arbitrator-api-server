@@ -19,56 +19,78 @@ export const verifyEmailAndSetPassword = async (req, res, next) => {
 };
 
 
-export const submitArbitratorProfile = async (req, res) => {
-    try {
-        const arbitrator = await ArbitratorModel.create({
-            user_id: req.user.id,
-            ...req.body
-        });
+export const submitArbitratorProfile = async (req, res, next) => {
+  try {
+    const arbitrator = await ArbitratorModel.submitArbitratorProfile(req.user.id, req.body);
 
-        res.status(201).json({
-            message: 'Arbitrator profile submitted for review',
-            arbitrator
-        });
-    } catch (err) {
-        res.status(400).json({ error: err.message });
-    }
+    res.status(201).json({
+      message: 'Arbitrator profile submitted for review',
+      arbitrator
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const getPendingArbitrators = async (req, res) => {
+export const getPendingArbitrators = async (req, res, next) => {
+
+  try {
+
     const arbitrators = await ArbitratorModel.findPending();
-    res.json(arbitrators);
+    res.status(201).json(arbitrators);
+
+  } catch (err) {
+    next(err);
+  }
+
 };
 
-export const approveArbitrator = async (req, res) => {
+export const approveArbitrator = async (req, res, next) => {
+
+  try {
+
     const arbitrator = await ArbitratorModel.approve(
-        req.params.id,
-        req.user.id
+      req.params.id,
+      req.user.id
     );
 
-    res.json({
-        message: 'Arbitrator approved successfully',
-        arbitrator
+    res.status(201).json({
+      message: 'Arbitrator approved successfully',
+      arbitrator
     });
+
+  } catch (err) {
+    next(err);
+  }
+
 };
 
-export const rejectArbitrator = async (req, res) => {
+export const rejectArbitrator = async (req, res, next) => {
+
+  try {
     const arbitrator = await ArbitratorModel.reject(
-        req.params.id,
-        req.body.reason
+      req.params.id,
+      req.body.reason
     );
 
-    res.json({
-        message: 'Arbitrator rejected',
-        arbitrator
+    res.status(201).json({
+      message: 'Arbitrator rejected',
+      arbitrator
     });
+
+  } catch (err) {
+    next(err);
+  }
 };
 
-export const getSelectableArbitrators = async (req, res) => {
+export const getSelectableArbitrators = async (req, res, next) => {
+  try {
     const arbitrators = await ArbitratorModel.findApproved();
-    res.json(arbitrators);
+    res.status(201).json(arbitrators);
+  } catch (err) {
+    next(err);
+  }
 };
-
 
 export const updateProfileWithLog = async (req, res, next) => {
   try {

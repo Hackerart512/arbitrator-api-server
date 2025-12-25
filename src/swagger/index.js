@@ -2,6 +2,7 @@ import userSwagger from '../modules/user/user.swagger.js';
 import permissionSwagger from '../modules/permission/permission.swagger.js';
 import roleSwagger from '../modules/role/role.swagger.js';
 import arbitratorSwagger from '../modules/arbitrator/arbitrator.swagger.js';
+import caseSwagger from '../modules/case/case.swagger.js';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -28,21 +29,24 @@ export default {
     ...permissionSwagger.paths,
     ...roleSwagger.paths,
     ...arbitratorSwagger.paths,
+    ...caseSwagger.paths,
   },
   components: {
     securitySchemes: {
       bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Enter JWT token (without Bearer prefix)'
+        type: 'apiKey',
+        in: 'header',
+        name: 'Authorization',
+        description: 'Paste JWT token directly (WITHOUT Bearer prefix)'
       }
     },
+
     schemas: {
       ...userSwagger.components?.schemas,
       ...permissionSwagger.components?.schemas,
       ...roleSwagger.components?.schemas,
       ...arbitratorSwagger.components?.schemas,
+      ...caseSwagger.components?.schemas,
     },
   },
 };

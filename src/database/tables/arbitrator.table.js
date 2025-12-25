@@ -20,9 +20,9 @@ const createArbitratorTable = async () => {
       fees NUMERIC(10,2),
       submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       verified_at TIMESTAMP,
-      rejection_reason TEXT
-      status VARCHAR(20) DEFAULT 'pending'
-      CHECK (status IN ('pending', 'suspended', 'rejected','verified)),
+      rejection_reason TEXT,
+      status VARCHAR(20) DEFAULT 'pending',
+      CHECK (status IN ('pending', 'suspended', 'rejected','verified')),
       approved_by UUID REFERENCES users(id),
       approved_at TIMESTAMP,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
