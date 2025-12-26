@@ -4,6 +4,8 @@ const createCaseTable = async () => {
     const query = `
         CREATE TABLE IF NOT EXISTS cases (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            case_number VARCHAR(30) UNIQUE NOT NULL, 
+            -- Example: ARB-2025-0001
             title VARCHAR(255) NOT NULL,
             description TEXT,
             claim_amount NUMERIC(15,2),

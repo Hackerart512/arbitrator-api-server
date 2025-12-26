@@ -10,27 +10,16 @@ const permissions = [
     { name: 'Manage Arbitrator', key: 'manage_arbitrator', description: 'Manage arbitrator list' },
     { name: 'Create Case', key: 'create_case', description: 'create_case' },
 
+    { name: 'Create Case', key: 'case_arbitrators', description: 'case_arbitrators' },
+    { name: 'Create Case', key: 'case_party_add', description: 'case_party_add' },
+    { name: 'Create Case', key: 'case_doc_upload', description: 'case_doc_upload' },
+    { name: 'Create Case', key: 'case_payment', description: 'case_payment' },
+    { name: 'Create Case', key: 'case_arbitrators', description: 'case_arbitrators' },
+    { name: 'Create Case', key: 'respondent_arbitrator_decision', description: 'respondent_arbitrator_decision' },
+    { name: 'Create Case', key: 'arbitrator_response', description: 'arbitrator_response' },
 
- 
-    // Role & Permission
-    { name: 'View Roles', key: 'view_roles', description: 'View roles' },
-    { name: 'Manage Roles', key: 'manage_roles', description: 'Create, update or delete roles' },
-    { name: 'Assign Permissions', key: 'assign_permissions', description: 'Assign permissions to roles' },
 
-     
-
-    // Case
-    { name: 'Create Case', key: 'create_case', description: 'File arbitration case' },
-    { name: 'View Case', key: 'view_case', description: 'View arbitration case' },
-    { name: 'Respond to Case', key: 'respond_case', description: 'Respond to arbitration case' },
-
-    // Proceedings
-    { name: 'Upload Evidence', key: 'upload_evidence', description: 'Upload case evidence' },
-    { name: 'Schedule Hearing', key: 'schedule_hearing', description: 'Schedule hearings' },
-
-    // Award
-    { name: 'Draft Award', key: 'draft_award', description: 'Draft arbitral award' },
-    { name: 'Finalize Award', key: 'finalize_award', description: 'Finalize and sign award' }
+  
 ];
 
 

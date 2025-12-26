@@ -245,10 +245,60 @@ const arbitratorSwagger = {
         },
 
         /* ================= APPROVED / SELECTABLE ================= */
+        /* ================= ARBITRATOR SELECTION ================= */
         '/api/arbitrators/selectable': {
             get: {
                 tags: ['Arbitrator'],
                 summary: 'Get approved arbitrators (Selectable)',
+                description: 'Returns verified arbitrators for claimant shortlisting with filters',
+                security: [{ bearerAuth: [] }],
+                parameters: [
+                    {
+                        name: 'city',
+                        in: 'query',
+                        schema: {
+                            type: 'string',
+                            example: 'Delhi'
+                        },
+                        description: 'Filter by city'
+                    },
+                    {
+                        name: 'specialization',
+                        in: 'query',
+                        schema: {
+                            type: 'string',
+                            example: 'Commercial Arbitration'
+                        },
+                        description: 'Filter by specialization'
+                    },
+                    {
+                        name: 'minExperience',
+                        in: 'query',
+                        schema: {
+                            type: 'integer',
+                            example: 5
+                        },
+                        description: 'Minimum experience in years'
+                    },
+                    {
+                        name: 'minFees',
+                        in: 'query',
+                        schema: {
+                            type: 'number',
+                            example: 3000
+                        },
+                        description: 'Minimum arbitrator fee'
+                    },
+                    {
+                        name: 'maxFees',
+                        in: 'query',
+                        schema: {
+                            type: 'number',
+                            example: 15000
+                        },
+                        description: 'Maximum arbitrator fee'
+                    }
+                ],
                 responses: {
                     200: {
                         description: 'Approved arbitrators list',
@@ -257,21 +307,45 @@ const arbitratorSwagger = {
                                 schema: {
                                     type: 'object',
                                     properties: {
-                                        success: { type: 'boolean', example: true },
+                                        success: {
+                                            type: 'boolean',
+                                            example: true
+                                        },
+                                        count: {
+                                            type: 'integer',
+                                            example: 2
+                                        },
                                         data: {
                                             type: 'array',
                                             items: {
                                                 type: 'object',
                                                 properties: {
-                                                    id: { type: 'integer', example: 5 },
-                                                    full_name: { type: 'string', example: 'Rohit Verma' },
-                                                    city: { type: 'string', example: 'Delhi' },
-                                                    specialization: {
+                                                    id: {
                                                         type: 'string',
-                                                        example: 'Commercial Arbitration'
+                                                        format: 'uuid',
+                                                        example: '8c7f5c9b-9c3d-4f21-9f10-8f3b8e0f1a2c'
                                                     },
-                                                    experience_years: { type: 'integer', example: 10 },
-                                                    fees: { type: 'number', example: 5000 }
+                                                    full_name: {
+                                                        type: 'string',
+                                                        example: 'Rohit Verma'
+                                                    },
+                                                    city: {
+                                                        type: 'string',
+                                                        example: 'Delhi'
+                                                    },
+                                                    specialization: {
+                                                        type: 'array',
+                                                        items: { type: 'string' },
+                                                        example: ['Commercial Arbitration', 'Contract Law']
+                                                    },
+                                                    experience_years: {
+                                                        type: 'integer',
+                                                        example: 10
+                                                    },
+                                                    fees: {
+                                                        type: 'number',
+                                                        example: 5000
+                                                    }
                                                 }
                                             }
                                         }
@@ -279,6 +353,9 @@ const arbitratorSwagger = {
                                 }
                             }
                         }
+                    },
+                    401: {
+                        description: 'Unauthorized'
                     }
                 }
             }

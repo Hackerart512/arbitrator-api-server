@@ -18,7 +18,7 @@ const ArbitratorModel = {
 
             await client.query('BEGIN');
 
-          
+
             const roleRes = await client.query(
                 'SELECT id FROM roles WHERE name = $1',
                 [role_type]
@@ -332,21 +332,58 @@ const ArbitratorModel = {
     },
 
     /* ---------------- APPROVED / SELECTABLE ---------------- */
-    findApproved: async () => {
-        const { rows } = await pool.query(
-            `
-      SELECT
-        id,
-        full_name,
-        city,
-        specialization,
-        experience_years,
-        fees
-      FROM arbitrators
-      WHERE status = 'verified'
-      ORDER BY experience_years DESC;
-      `
-        );
+    findApprovedWithFilters: async (filters) => {
+        const {
+            city,
+            specialization,
+            minFees,
+            maxFees,
+            minExperience
+        } = filters;
+
+        let query = `
+        SELECT
+            id,
+            full_name,
+            city,
+            specialization,
+            experience_years,
+            fees
+        FROM arbitrators
+        WHERE status = 'verified'
+    `;
+
+        const values = [];
+        let idx = 1;
+
+        if (city) {
+            query += ` AND city = $${idx++}`;
+            values.push(city);
+        }
+
+        if (specialization) {
+            query += ` AND $${idx++} = ANY (specialization)`;
+            values.push(specialization);
+        }
+
+        if (minFees) {
+            query += ` AND fees >= $${idx++}`;
+            values.push(minFees);
+        }
+
+        if (maxFees) {
+            query += ` AND fees <= $${idx++}`;
+            values.push(maxFees);
+        }
+
+        if (minExperience) {
+            query += ` AND experience_years >= $${idx++}`;
+            values.push(minExperience);
+        }
+
+        query += ` ORDER BY experience_years DESC`;
+
+        const { rows } = await pool.query(query, values);
         return rows;
     },
 

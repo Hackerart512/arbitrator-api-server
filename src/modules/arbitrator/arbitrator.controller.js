@@ -85,7 +85,7 @@ export const rejectArbitrator = async (req, res, next) => {
 
 export const getSelectableArbitrators = async (req, res, next) => {
   try {
-    const arbitrators = await ArbitratorModel.findApproved();
+    const arbitrators = await ArbitratorModel.findApproved(req.query);
     res.status(201).json(arbitrators);
   } catch (err) {
     next(err);
